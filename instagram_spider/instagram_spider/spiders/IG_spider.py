@@ -1,4 +1,5 @@
 import scrapy
+import json
 
 class IG_spider(scrapy.Spider):
     name = "IG"
@@ -30,7 +31,18 @@ class IG_spider(scrapy.Spider):
 
 
     def parse(self, response):
-        page = response.url.split("/")[-2]
-        filename = 'quotes-%s.html' % page
-        with open(filename, 'wb') as f:
-            f.write(response.body)
+        # Extracts the JSON which makes up the whole instagram profile
+        extractedJSON = response.css("script").extract()[6]
+        proccessedJSON = parseJSON(extractedJSON)
+
+        filename = "output.JSON" # TODO Change this part
+        with open(filename, 'a') as f:
+            f.write(proccessedJSON)
+
+
+# Helper Function to parse JSON (Should probably clean this up later on)
+def parseJSON(json):
+    if json.find('"is_private": true') > 0:
+        return ''
+    else: return json+'\n'
+    # TODO finish adding functionality
