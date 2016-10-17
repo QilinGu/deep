@@ -4,45 +4,80 @@ import json
 class IG_spider(scrapy.Spider):
     name = "IG"
 
-    start_urls = [
-            'https://www.instagram.com/francisco.rs/',
-            'https://www.instagram.com/_jantie._/',
-            'https://www.instagram.com/gaston_contreras4/',
-            'https://www.instagram.com/j_shikari/'
-            'https://www.instagram.com/yasminnstifler/'
-            'https://www.instagram.com/thenotrealnickrobinson/'
-            'https://www.instagram.com/mari_armada16/'
-            'https://www.instagram.com/carolina___19/'
-            'https://www.instagram.com/nemanja_sindja/'
-            'https://www.instagram.com/leoo.taborda3/',
-            'https://www.instagram.com/giulignr/',
-            'https://www.instagram.com/pariparker/',
-            'https://www.instagram.com/bencomomel/',
-            'https://www.instagram.com/jeison_lebron/',
-            'https://www.instagram.com/danirivera0918/',
-            'https://www.instagram.com/sharapova4884/',
-            'https://www.instagram.com/sshawnmendess.cf/',
-            'https://www.instagram.com/mrreckless23foreva/',
-            'https://www.instagram.com/karo_by_cuteforyou_blog/',
-            'https://www.instagram.com/idk.s.x_/',
-            'https://www.instagram.com/helsagabriela_/',
-            'https://www.instagram.com/ebnnasserdine/'
-        ]
+    start_urls = []
+    file_input = 'input.txt' # TODO Change this part
+    f_read = open(file_input, 'r')
+    for line in f_read:
+        start_urls.append('https://www.instagram.com/'+line[:-1]+'/')
 
 
     def parse(self, response):
         # Extracts the JSON which makes up the whole instagram profile
-        extractedJSON = response.css("script").extract()[6]
-        proccessedJSON = parseJSON(extractedJSON)
+        extracted_string = response.css("script").extract()[6]
+        stripped_json = extracted_string[52:-10] # Strips script tags and 'window._sharedData ='
+        proccessed_json = parseJSON(stripped_json)
 
-        filename = "output.JSON" # TODO Change this part
+        filename = "output.json" # TODO Change this part
         with open(filename, 'a') as f:
-            f.write(proccessedJSON)
+            f.write(proccessed_json)
 
 
-# Helper Function to parse JSON (Should probably clean this up later on)
-def parseJSON(json):
-    if json.find('"is_private": true') > 0:
+def parseJSON(input_json):
+    '''
+    Helper Function to parse JSON
+
+    Input: Takes an input string of each users' profile that is valid JSON format
+    Returns: Multiple dictionaries seperated by commas
+             Note: This needs to be fixed! Very hacky
+
+    TODO finish adding functionality
+        - Need to clean up the return here.
+    '''
+
+    extracted_info = json.loads(input_json)
+
+    # Fields we need from user
+    user_info = extracted_info['entry_data']['ProfilePage'][0]['user']
+    username = user_info['username'] # we probably don't need this
+    user_id = user_info['id']
+    followed_by = user_info['followed_by']['count']
+    follows = user_info['follows']['count']
+    mediaCount = user_info['media']['count']
+    is_private = user_info['is_private']
+    #has_next_page = user_info['media']['count']['page_info']['has_next_page']
+
+    if mediaCount < 12 or is_private:
         return ''
-    else: return json+'\n'
-    # TODO finish adding functionality
+
+    # Fields we need from image
+    output_images = []
+    image_nodes = user_info['media']['nodes']
+    for image in image_nodes:
+        image_code = image['code']
+        image_date = image['date']
+        image_likes = image['likes']['count']
+        image_is_video = image['is_video']
+        image_id = image['id']
+        #image_caption = image['caption']
+        #image_hashtag_count = image_caption.count('#')
+        image_thumbnail_src = image['thumbnail_src']
+        image_display_src = image['display_src']
+        image_thumbnail_src = image_thumbnail_src[:image_thumbnail_src.index('.jpg')+4]
+        image_display_src = image_display_src[:image_display_src.index('.jpg')+4]
+
+        if not image_is_video:
+            out_image = {'username': username,
+                        'user_id': user_id,
+                        'im_id': image_id,
+                        'im_code': image_code,
+                        'followed_by': followed_by,
+                        'follows': follows,
+                        'date': image_date,
+                        'likes': image_likes,
+                        #'hashtag_count': image_hashtag_count,
+                        'thumbnail_src': image_thumbnail_src,
+                        'display_src': image_display_src
+                        }
+
+            output_images.append(out_image)
+    return str(output_images)[1:-1]+','

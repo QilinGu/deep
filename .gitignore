@@ -1,5 +1,10 @@
 .DS_Store
 
+# JSON Files from spiders
+./instagram_spiders/instagram_spiders/spiders/*.json
+./instagram_spiders/instagram_spiders/spiders/*.txt
+
+# GitHub Default for python
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
