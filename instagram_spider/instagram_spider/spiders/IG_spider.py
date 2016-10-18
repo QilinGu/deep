@@ -16,10 +16,11 @@ class IG_spider(scrapy.Spider):
         extracted_string = response.css("script").extract()[6]
         stripped_json = extracted_string[52:-10] # Strips script tags and 'window._sharedData ='
         proccessed_json = parseJSON(stripped_json)
+        formatted_json = formatJSON(proccessed_json)
 
         filename = "output.json" # TODO Change this part
         with open(filename, 'a') as f:
-            f.write(proccessed_json)
+            f.write(formatted_json)
 
 
 def parseJSON(input_json):
@@ -81,3 +82,9 @@ def parseJSON(input_json):
 
             output_images.append(out_image)
     return str(output_images)[1:-1]+','
+
+def formatJSON(input_json):
+    input_json = input_json.replace('u\'', '"')
+    input_json = input_json.replace('\'', '"')
+    input_json = input_json.replace('{', '\n{')
+    return input_json
