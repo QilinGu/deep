@@ -16,11 +16,10 @@ class IG_spider(scrapy.Spider):
         extracted_string = response.css("script").extract()[6]
         stripped_json = extracted_string[52:-10] # Strips script tags and 'window._sharedData ='
         proccessed_json = parseJSON(stripped_json)
-        formatted_json = formatJSON(proccessed_json)
 
         filename = "output.json" # TODO Change this part
         with open(filename, 'a') as f:
-            f.write(formatted_json)
+            f.write(proccessed_json)
 
 
 def parseJSON(input_json):
@@ -54,34 +53,26 @@ def parseJSON(input_json):
     output_images = []
     image_nodes = user_info['media']['nodes']
     for image in image_nodes:
-        image_code = image['code']
-        image_date = image['date']
-        image_likes = image['likes']['count']
-        image_is_video = image['is_video']
-        image_id = image['id']
-        #image_caption = image['caption']
-        #image_hashtag_count = image_caption.count('#')
-        image_thumbnail_src = image['thumbnail_src']
-        image_display_src = image['display_src']
-        image_thumbnail_src = image_thumbnail_src[:image_thumbnail_src.index('.jpg')+4]
-        image_display_src = image_display_src[:image_display_src.index('.jpg')+4]
+        if not image['is_video']:
 
-        if not image_is_video:
+            image_thumbnail_src = image['thumbnail_src']
+            image_display_src = image['display_src']
             out_image = {'username': username,
                         'user_id': user_id,
-                        'im_id': image_id,
-                        'im_code': image_code,
+                        'im_id': image['id'],
+                        'im_code': image['code'],
                         'followed_by': followed_by,
                         'follows': follows,
-                        'date': image_date,
-                        'likes': image_likes,
+                        'date': image['date'],
+                        'likes': image['likes']['count'],
                         #'hashtag_count': image_hashtag_count,
-                        'thumbnail_src': image_thumbnail_src,
-                        'display_src': image_display_src
+                        'thumbnail_src': image_thumbnail_src[:image_thumbnail_src.index('.jpg')+4],
+                        'display_src': image_display_src[:image_display_src.index('.jpg')+4]
                         }
-
+            #image_caption = image['caption']
+            #image_hashtag_count = image_caption.count('#')
             output_images.append(out_image)
-    return str(output_images)[1:-1]+','
+    return formatJSON(str(output_images)[1:-1]+',')
 
 def formatJSON(input_json):
     input_json = input_json.replace('u\'', '"')
