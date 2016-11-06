@@ -3,6 +3,7 @@
 # JSON Files from spiders
 ./instagram_spiders/instagram_spiders/spiders/*.json
 ./instagram_spiders/instagram_spiders/spiders/*.txt
+./instagram_spiders/instagram_spiders/spiders/instafollowers/*
 
 # GitHub Default for python
 # Byte-compiled / optimized / DLL files
