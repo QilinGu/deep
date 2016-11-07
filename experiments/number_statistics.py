@@ -4,7 +4,7 @@ def count():
     '''
     Counts the number
     '''
-    file_input = 'input.json' # TODO Change this part
+    file_input = '../external_files/input.json' # TODO Change this part
     num_stats = {}
 
     f_read = open(file_input, 'r')
