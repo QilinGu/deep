@@ -5,7 +5,7 @@ class IG_spider(scrapy.Spider):
     name = "IG"
 
     start_urls = []
-    file_input = 'input.txt' # TODO Change this part
+    file_input = '../../../external_files/input.txt' # TODO Change this part
     f_read = open(file_input, 'r')
     for line in f_read:
         start_urls.append('https://www.instagram.com/'+line[:-1]+'/')
@@ -17,7 +17,7 @@ class IG_spider(scrapy.Spider):
         stripped_json = extracted_string[52:-10] # Strips script tags and 'window._sharedData ='
         proccessed_json = parseJSON(stripped_json)
 
-        filename = "output.json" # TODO Change this part
+        filename = "../../../external_files/output.json" # TODO Change this part
         with open(filename, 'a') as f:
             f.write(proccessed_json)
 
