@@ -10,17 +10,45 @@ class Node():
           convenience)
     '''
 
-    def __init__():
-        pass
+    def __init__(data, followers, next_node=None):
+        self.data = data
+        self.followers = followers
+        self.next = next_node
 
-    def return_data():
+    def get_data():
         '''
         Returns the data inside the node
         '''
-        pass
+        return self.data
 
-    def insert():
-        pass
+    def get_followers():
+        '''
+        Returns the followers
+        '''
+        return self.followers
 
-    def add_to_tail():
-        pass
+    def next():
+        '''
+        Returns the data inside the node
+        '''
+        return self.next
+
+    def set_next(node):
+        '''
+        Sets the 'next' for the node
+        '''
+        self.next = next_node
+
+    '''
+    Not very object orientedy, maybe change
+    '''
+    def insert_before(node):
+        '''
+        ONLY FOR THE PUTTING NODE AS FIRST ELEMENT IN BUCKET
+        '''
+        node.set_next(self)
+
+    def insert_after(node):
+        next_node = self.next()
+        self.next = node
+        node.set_next(next_node)

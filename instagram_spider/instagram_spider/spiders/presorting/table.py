@@ -1,3 +1,5 @@
+import json
+import node
 
 class Table():
     '''
@@ -15,22 +17,109 @@ class Table():
 
     TODO in the future:
         - Use a hash table which will find the bucket based on the Log Normal
-          Distribution (useful if the dataset is big enough – for now this is 
+          Distribution (useful if the dataset is big enough – for now this is
           good enough)
 
 
     Possible additions:
-        - Increase the number of buckets when it gets too full to improve speed
+        1. Increase the number of buckets when it gets too full to improve
+           speed, would split the current buckets into these ranges.
+           Eg: prev bucket range was 100-200, new buckets at 100-150 and 151-200
+           traverse list and set element 150 to 'None' and set 151 to be the
+           first element of the next bucket
     '''
     def __init__(mu, sigma, num_buckets):
         '''
         Initialize the table with num_buckets and distributed according to mu
         and sigma.
         '''
+        self.mu = mu
+        self.sigma = sigma
+        self.buckets = []
+        for i in range(num_buckets):
+            self.buckets[i] = None
         pass
+
+    # Helper Functions
+    def compute_bucket(followers):
+        '''
+        Helper function
+        Add to the given bucket
+        - to make this a hash table, should how this function works
+
+        Arguments:
+            - followers: the number of followers to compute which bucket the
+              node should be in
+        Returns:
+            - A pointer (or index) to the bucket that the node should be in
+        '''
+        pass
+
+    def buckets(bucket):
+        '''
+        Abstraction that returns the bucket you want.
+        Will make code calling it work regardless of data structure of the table
+        of buckets
+
+        Arguments:
+            - bucket: the identifier of the buket (index or code, etc.)
+        Returns:
+            - the first node in that bucket (or 'None' if bucket is empty)
+        '''
+        return self.buckets(bucket)
+
+    def add_to_bucket(node, bucket, followers=None):
+        '''
+        Helper function
+        Adds the node to the given bucken in the correct order
+
+        Arguments:
+            - node: node to add
+            - bucket: pointer (or index) to bucket
+            - followers (optional)
+
+        '''
+        if followers == None: # if followers are not given beforehand
+            followers = node.get_followers()
+
+        if self.buckets(bucket) == None: # if bucket is empty
+            self.buckets(bucket) = node
+        else if self.buckets(bucket).get_followers > followers:
+            # insert before first element
+            self.buckets(bucket).insert_before(node)
+        else:
+            # insert somewhere in the middle or end
+            ptr = self.buckets(bucket)
+            while (ptr not None):
+                if (ptr.next() == None) or (ptr.next().get_followers() > followers):
+                    ptr.insert_after(node)
+
+    # Public Functions
+    def add(json_str, followers=None):
+        '''
+        Adds the json string json_str to a specific bucket and places it in
+        order inside the bucket
+        Creates a node with that information and adds it to the proper bucket
+        in the right order
+
+        Arguments:
+            - json_str :a string formated as a json
+            - followers (optional)
+        '''
+        if followers == None:
+            followers = json['followers']
+
+        json = json.loads(json_str)
+        bucket = self.compute_bucket(followers)
+
+        node = Node(json_str, followers)
+        self.add_to_bucket(node, followers, bucket)
 
     def save(output_file):
         '''
-        Save the data in order to a file given by output_file
+        Save the data *in order* to a file given by output_file
+
+        Arguments:
+            - output_file: the location of the file you want to write into
         '''
         pass
