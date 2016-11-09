@@ -17,7 +17,7 @@ class Node():
 
     def get_data():
         '''
-        Returns the data inside the node
+        Returns a string formatted as a json
         '''
         return self.data
 
@@ -29,7 +29,7 @@ class Node():
 
     def next():
         '''
-        Returns the data inside the node
+        Returns the pointer to the next node
         '''
         return self.next
 

@@ -14,12 +14,10 @@ class Table():
           150k-250k followers
     [1] http://mathworld.wolfram.com/LogNormalDistribution.html
 
-
     TODO in the future:
         - Use a hash table which will find the bucket based on the Log Normal
           Distribution (useful if the dataset is big enough – for now this is
           good enough)
-
 
     Possible additions:
         1. Increase the number of buckets when it gets too full to improve
@@ -66,7 +64,7 @@ class Table():
         Returns:
             - the first node in that bucket (or 'None' if bucket is empty)
         '''
-        return self.buckets(bucket)
+        return self.buckets[bucket]
 
     def add_to_bucket(node, bucket, followers=None):
         '''
@@ -82,7 +80,7 @@ class Table():
         if followers == None: # if followers are not given beforehand
             followers = node.get_followers()
 
-        if self.buckets(bucket) == None: # if bucket is empty
+        if self.buckets(bucket) is None: # if bucket is empty
             self.buckets(bucket) = node
         else if self.buckets(bucket).get_followers > followers:
             # insert before first element
@@ -90,8 +88,8 @@ class Table():
         else:
             # insert somewhere in the middle or end
             ptr = self.buckets(bucket)
-            while (ptr not None):
-                if (ptr.next() == None) or (ptr.next().get_followers() > followers):
+            while (ptr is not None):
+                if (ptr.next() is None) or (ptr.next().get_followers() > followers):
                     ptr.insert_after(node)
 
     # Public Functions
@@ -108,11 +106,10 @@ class Table():
         '''
         if followers == None:
             followers = json['followers']
-
         json = json.loads(json_str)
-        bucket = self.compute_bucket(followers)
-
+        # create node and add to correct bucket in correct order
         node = Node(json_str, followers)
+        bucket = self.compute_bucket(followers)
         self.add_to_bucket(node, followers, bucket)
 
     def save(output_file):
@@ -121,5 +118,22 @@ class Table():
 
         Arguments:
             - output_file: the location of the file you want to write into
+
+        TODO:
+            - Make this work in any general case for both lists, arrays, etc.
+            - The problem here is how to iterate over the buckets:
+            - eg (made up ranges): go through the elements in bucket 1
+              (1-10 followers), then bucket 2 (11-20 followers), all the way to
+              the last bucket (1m-10m followers)
+
+        Possible additions:
+            - Test out speed of writing one line at a time vs saving all nodes
+              from a bucket into a string and then writing once per bucket
         '''
-        pass
+        # PARTIALLY WORKING (ONLY LISTS FOR NOW)
+        for bucket in range(len(self.buckets)):
+            ptr = self.buckets(bucket)
+            while ptr is not None:
+                with open(output_file, 'a') as f:
+                    f.write(ptr.get_data())
+                ptr = ptr.next()
