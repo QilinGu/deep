@@ -29,3 +29,34 @@ def magnitude_of_scale(num_stats, base=10):
             n += 1
         num_stats_powers[n] = num_stats_powers.get(n, 0) + num_stats[key]
     return num_stats_powers
+
+def histogram_matching(num_stats, cdf='linear'):
+    '''
+    Matches num stats to a specific cdf defined by 'cdf'
+    Check wikipedia for more info:
+        - https://en.wikipedia.org/wiki/Histogram_equalization
+        - https://en.wikipedia.org/wiki/Histogram_matching
+
+    TODO: Complete histogram_matching for cdfs other than linear
+    Use T(X) = (L-1) * sum(prob(x))
+    '''
+    matched_stats = {}
+
+    if cdf == 'linear':
+        prob_of_one = 1. / sum(num_stats.keys())
+        L = len(num_stats.keys())
+
+        for key in num_stats.keys():
+            matched_stats[key] = (L - 1) * num_stats[key] * prob_of_one
+        return matched_stats
+    else:
+        print 'Not completed feature'
+        return -1
+
+def write_stats(num_stats):
+    '''
+    Writes out these stats to use as a starting point in presorting
+    '''
+    file_output = '../external_files/num_stats.txt' # TODO Change this part
+    with open(file_output, 'a') as f:
+        json.dump(num_stats, f)
