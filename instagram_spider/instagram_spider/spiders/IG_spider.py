@@ -2,6 +2,11 @@ import scrapy
 import json
 
 class IG_spider(scrapy.Spider):
+    '''
+    [1] - Instagram is set up really nicely for this
+    [2] - These tags are universal across instagram so no need to make this
+          less specific or do anything fancier here
+    '''
     name = "IG"
 
     start_urls = []
@@ -12,14 +17,16 @@ class IG_spider(scrapy.Spider):
 
 
     def parse(self, response):
-        # Extracts the JSON which makes up the whole instagram profile
+        # Extracts the JSON which makes up the whole instagram profile [1]
         extracted_string = response.css("script").extract()[6]
-        stripped_json = extracted_string[52:-10] # Strips script tags and 'window._sharedData ='
-        proccessed_json = parseJSON(stripped_json)
 
-        filename = "../../../external_files/output.json" # TODO Change this part
-        with open(filename, 'a') as f:
-            f.write(proccessed_json)
+        if len(extracted_string) > 31 and extracted_string[31] == 'w': # Skips invalid pages
+            stripped_json = extracted_string[52:-10] # Strips script tags and 'window._sharedData =' [2]
+            proccessed_json = parseJSON(stripped_json)
+
+            filename = "../../../external_files/output.json" # TODO Change this part
+            with open(filename, 'a') as f:
+                f.write(proccessed_json)
 
 
 def parseJSON(input_json):
